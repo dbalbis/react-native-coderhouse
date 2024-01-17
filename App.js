@@ -1,10 +1,35 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import {
+  useFonts,
+  Roboto_400Regular,
+  Roboto_100Thin,
+  Roboto_300Light_Italic,
+  Roboto_300Light,
+} from '@expo-google-fonts/roboto';
 
 export default function App() {
+  const [loaded] = useFonts({
+    Roboto: Roboto_300Light,
+  });
+
+  if (!loaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text
+        style={{
+          fontSize: 35,
+          fontFamily: 'Roboto',
+          textAlign: 'center',
+          color: '#fff',
+        }}
+      >
+        Ecommerce Mobile App! 🚀
+      </Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -13,7 +38,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
   },
