@@ -28,7 +28,7 @@ export default function App() {
           color: '#fff',
         }}
       >
-        Ecommerce Mobile App! 🚀
+        Hola, Coder! 🚀
       </Text>
       <StatusBar style="auto" />
     </View>
