@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  Image,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import {
@@ -12,25 +13,56 @@ import {
   Roboto_300Light,
   Roboto_300Light_Italic,
 } from '@expo-google-fonts/roboto';
+import items from '../../data/products.json';
 
-const Items = ({ setItemsEnCarrito }) => {
+const Items = ({
+  setItemsEnCarrito,
+  searchedProduct,
+  setSearchedProduct,
+  setSelectedCategory,
+  selectedCategory,
+}) => {
   const [loaded] = useFonts({
     RobotoLight: Roboto_300Light,
     RobotoLightItalic: Roboto_300Light_Italic,
   });
 
+  const [filteredItems, setFilteredItems] = useState([]);
+
+  useEffect(() => {
+    if (searchedProduct && searchedProduct.trim() !== '') {
+      setSelectedCategory('');
+      console.log('Producto', searchedProduct);
+      // Si hay una búsqueda, filtramos los productos por el término de búsqueda
+      const filtered = items.filter((item) =>
+        item.title.toLowerCase().includes(searchedProduct.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  }, [searchedProduct]);
+
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.trim() !== '') {
+      setSearchedProduct('');
+      console.log('Categoria:', selectedCategory);
+      // Si hay una categoría seleccionada, filtramos los productos por la categoría
+      const filtered = items.filter((item) =>
+        item.category.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (!searchedProduct && !selectedCategory) {
+      // Si no hay búsqueda ni categoría seleccionada, mostramos los primeros 10 productos
+      setFilteredItems(items.slice(0, 10));
+    }
+  }, [searchedProduct, selectedCategory]);
+
   if (!loaded) {
     return null;
   }
-
-  const items = [
-    { id: 1, name: 'Artículo 1', description: 'Descripción del artículo 1' },
-    { id: 2, name: 'Artículo 2', description: 'Descripción del artículo 2' },
-    { id: 3, name: 'Artículo 3', description: 'Descripción del artículo 3' },
-    { id: 4, name: 'Artículo 4', description: 'Descripción del artículo 4' },
-    { id: 5, name: 'Artículo 5', description: 'Descripción del artículo 5' },
-    { id: 6, name: 'Artículo 6', description: 'Descripción del artículo 6' },
-  ];
 
   const handleAddToCart = (id) => {
     setItemsEnCarrito((prevItemsEnCarrito) => prevItemsEnCarrito + 1);
@@ -47,12 +79,13 @@ const Items = ({ setItemsEnCarrito }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={items}
+        data={filteredItems}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         renderItem={({ item }) => (
           <View style={styles.itemContainer} key={item.id}>
-            <Text style={styles.name}>{item.name}</Text>
+            <Image source={{ uri: item.thumbnail }} style={styles.itemImage} />
+            <Text style={styles.name}>{item.title}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <View style={styles.buttonContainer}>
               <TouchableOpacity
@@ -83,14 +116,18 @@ const styles = StyleSheet.create({
 
     padding: 10,
   },
-  flatlistContent: {
-    flexGrow: 1,
-  },
   itemContainer: {
     flex: 1,
+    zIndex: 1,
     backgroundColor: '#f0f0f0',
     padding: 10,
     margin: 5,
+  },
+  itemImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    marginBottom: 10,
   },
   name: {
     fontSize: 18,
