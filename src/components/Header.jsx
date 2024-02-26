@@ -27,6 +27,7 @@ const Header = ({
   };
 
   const handleHomePress = () => {
+    console.log('ok');
     setSearchedProduct('');
     setSelectedCategory('');
   };
