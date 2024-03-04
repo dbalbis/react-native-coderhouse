@@ -14,15 +14,25 @@ import {
   Roboto_300Light_Italic,
 } from '@expo-google-fonts/roboto';
 import Header from '../components/Header';
+import {
+  increment,
+  decrement,
+  reset,
+  incrementByAmount,
+} from '../features/counter/counterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Home = ({ navigation }) => {
-  const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
-  const [error, setError] = useState(null); // Estado para manejar errores
-  const [Items, setItems] = useState([]); // Estado para almacenar los productos
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [items, setItems] = useState([]);
   const [itemsEnCarrito, setItemsEnCarrito] = useState(0);
   const [searchedProduct, setSearchedProduct] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [quantities, setQuantities] = useState({}); // Estado local para las cantidades
+
+  const dispatch = useDispatch();
 
   const handleSearch = (searchTerm) => {
     setSearchedProduct(searchTerm);
@@ -45,8 +55,25 @@ const Home = ({ navigation }) => {
   };
 
   const handleItemDetailPress = (item) => {
-    // Navegar a la pantalla ItemDetail.jsx pasando el artículo como parámetro
     navigation.navigate('ItemDetail', { item });
+  };
+
+  const handleIncrement = (id) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [id]: (prevQuantities[id] || 0) + 1,
+    }));
+    dispatch(increment()); // Incrementa el contador global
+  };
+
+  const handleDecrement = (id) => {
+    if (quantities[id] > 0) {
+      setQuantities((prevQuantities) => ({
+        ...prevQuantities,
+        [id]: prevQuantities[id] - 1,
+      }));
+      dispatch(decrement()); // Decrementa el contador global
+    }
   };
 
   useEffect(() => {
@@ -59,44 +86,34 @@ const Home = ({ navigation }) => {
       })
       .then((data) => {
         setItems(data);
-        setLoading(false); // Marca que los productos se han cargado
+        setLoading(false);
       })
       .catch((error) => {
-        setError(error.message); // Almacena el error en caso de que ocurra
-        setLoading(false); // Marca que la carga ha terminado, incluso en caso de error
+        setError(error.message);
+        setLoading(false);
       });
   }, []);
 
   useEffect(() => {
+    let filtered = items;
     if (searchedProduct && searchedProduct.trim() !== '') {
       setSelectedCategory('');
       console.log('Producto', searchedProduct);
-      // Si hay una búsqueda, filtramos los productos por el término de búsqueda
-      const filtered = Items.filter((item) =>
+      filtered = items.filter((item) =>
         item.title.toLowerCase().includes(searchedProduct.toLowerCase())
       );
-      setFilteredItems(filtered);
-    }
-  }, [searchedProduct, Items]);
-
-  useEffect(() => {
-    if (selectedCategory && selectedCategory.trim() !== '') {
+    } else if (selectedCategory && selectedCategory.trim() !== '') {
       setSearchedProduct('');
       console.log('Categoria:', selectedCategory);
-      // Si hay una categoría seleccionada, filtramos los productos por la categoría
-      const filtered = Items.filter((item) =>
+      filtered = items.filter((item) =>
         item.category.toLowerCase().includes(selectedCategory.toLowerCase())
       );
-      setFilteredItems(filtered);
+    } else {
+      filtered = items.slice(0, 10);
     }
-  }, [selectedCategory, Items]);
 
-  useEffect(() => {
-    if (!searchedProduct && !selectedCategory) {
-      // Si no hay búsqueda ni categoría seleccionada, mostramos los primeros 10 productos
-      setFilteredItems(Items.slice(0, 10));
-    }
-  }, [searchedProduct, selectedCategory, Items]);
+    setFilteredItems(filtered);
+  }, [searchedProduct, selectedCategory, items]);
 
   const [loaded] = useFonts({
     RobotoLight: Roboto_300Light,
@@ -155,6 +172,23 @@ const Home = ({ navigation }) => {
               >
                 <FontAwesome name="trash" size={20} color="white" />
                 <Text style={styles.buttonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={() => handleDecrement(item.id)}
+              >
+                <FontAwesome name="minus" size={20} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>
+                {quantities[item.id] || 0}
+              </Text>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={() => handleIncrement(item.id)}
+              >
+                <FontAwesome name="plus" size={20} color="black" />
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => handleItemDetailPress(item)}>
@@ -229,6 +263,23 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline', // Subrayado para indicar que es un enlace
     color: 'blue', // Color azul para indicar que es un enlace
     textAlign: 'center',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  quantityButton: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  quantityText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
   },
 });
 
