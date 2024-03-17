@@ -6,7 +6,7 @@ const Stack = createNativeStackNavigator();
 
 const ItemsStack = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="ItemDetail" component={ItemDetail} />
     </Stack.Navigator>
