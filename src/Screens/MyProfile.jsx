@@ -1,69 +1,43 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 
 const MyProfile = ({ navigation }) => {
-  const { profileImage, imageCamera } = useSelector(
-    (state) => state.authReducer.value
-  );
-
   return (
     <View style={styles.container}>
-      {profileImage || imageCamera ? (
-        <Image
-          source={{ uri: profileImage || imageCamera }}
-          resizeMode="cover"
-          style={styles.image}
-        />
-      ) : (
-        <>
-          {/* <Image
-            source={require('../../assets/defaultProfile.png')}
-            style={styles.image}
-            resizeMode="cover"
-          /> */}
-        </>
-      )}
-      <Pressable
-        style={styles.button}
-        onPress={() => navigation.navigate('Image Selector')}
-      >
-        <Text style={styles.text}>Add profile picture</Text>
-      </Pressable>
       <Pressable
         style={styles.button}
         onPress={() => navigation.navigate('Location Selector')}
       >
-        <Text style={styles.text}>My addresses</Text>
+        <Text style={styles.buttonText}>My Addresses</Text>
       </Pressable>
     </View>
   );
 };
 
-export default MyProfile;
-
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+
     padding: 10,
-    gap: 15,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  image: {
-    width: 100,
-    height: 100,
+    justifyContent: 'center',
   },
   button: {
-    width: '80%',
-    elevation: 10,
-    backgroundColor: 'blue',
-    justifyContent: 'center',
+    backgroundColor: '#000',
+    padding: 10,
+    borderRadius: 5,
+    width: '50%',
     alignItems: 'center',
-    padding: 8,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
   },
-  text: {
-    fontFamily: 'InterRegular',
+  buttonText: {
     fontSize: 18,
-    color: 'white',
+    color: '#fff',
+    fontFamily: 'RobotoLight',
+    fontWeight: 'bold',
   },
 });
+
+export default MyProfile;

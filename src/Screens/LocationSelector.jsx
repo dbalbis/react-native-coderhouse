@@ -1,19 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
+import MapPreview from '../components/MapPreview';
 
-const LocationSelector = ({ navigation }) => {
+const LocationSelector = () => {
   const [location, setLocation] = useState({ latitude: '', longitude: '' });
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        setError('Permission to access location was denied');
         return;
       }
-      let location = await Location.getCurrentPositionAsync({});
+      let location = await Location.getCurrentPositionAsync();
       setLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -23,39 +24,52 @@ const LocationSelector = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>My Addresses</Text>
-      {/* Flatlist con las direcciones */}
-      {location ? (
+      <Text style={styles.headerText}>Mi dirección</Text>
+      {location.latitude ? (
         <View style={styles.noLocationContainer}>
-          <Text>
-            Lat: {location.latitude}, long: {location.longitude}.
+          <Text style={styles.addressText}>
+            Lat: {location.latitude}, long: {location.longitude}
           </Text>
+          <MapPreview location={location} />
         </View>
       ) : (
-        <View style={styles.noLocationContainer}>
-          <Text>{error}</Text>
-        </View>
+        <Text style={styles.errorText}>{error}</Text>
       )}
     </View>
   );
 };
-export default LocationSelector;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20, // "gap" no es una propiedad válida en StyleSheet, podrías usar "marginVertical" para agregar espacio vertical entre los elementos
+    gap: 20,
     paddingBottom: 130,
+    paddingTop: 40,
   },
   noLocationContainer: {
-    width: 200,
-    height: 200,
-    borderWidth: 2,
-    borderColor: 'green',
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 10,
+  },
+  headerText: {
+    fontFamily: 'InterRegular',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  addressText: {
+    fontFamily: 'InterRegular',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  errorText: {
+    fontFamily: 'InterRegular',
+    fontSize: 16,
+    color: 'red',
   },
 });
+
+export default LocationSelector;
